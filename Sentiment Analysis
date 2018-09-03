@@ -1,0 +1,83 @@
+import numpy as np
+import pandas as pd
+import tweepy
+import textblob as TextBlob
+from sklearn.model_selection import train_test_split
+
+import nltk
+from nltk.corpus import stopwords
+from nltk.classify import SklearnClassifier
+
+from wordcloud import WordCloud, STOPWORDS
+import matplotlib.pyplot as plt
+%matplotlib.pyplot as plt
+from subprocess import check_output
+
+data = pd.read_csv('..input/customer_feedback.csv')
+data = data[['text','sentiment']]
+
+train,test = train_test_split(data,test_size = 0.1)
+train = train[train.sentiment != "Neutral"]
+
+train_pos = train[train['sentiment'] ==  'Positive']
+train_pos = train_pos['text']
+train_neg = train[ train['sentiment'] == 'Negative']
+train_neg = train_neg['text']
+
+def wordcloud_draw(data, color = random_color)
+words = ' '.join(data)
+clean_words = " ".join([word for word in words.split()
+		if 'http' not in word
+			and not word.startswith('@')
+			and not word.startswith('#')
+		])
+wordcloud = WordCloud(stopwords=STOPWORDS, background_color=color,width=5000,height=3000).generate(clean_words)	
+plt.figure(1,figsize=(15,15))
+plt.imshow(wordcloud)
+plt.axis('off')
+plt.show()
+
+print("Positive Feedback")
+wordcloud_draw(train_pose,'white')
+print("Negative Feedback")
+wordcloud_draw(train_neg,'black')	
+
+feedback=[]
+stopwords_list=set(stopwords.words("english"))
+for index, row in train.iterrows():
+	filtered_words = [e.lower() for e in row.text.split() if len(e) .= 3]
+	cleaned_words = [word for word in filtered_words
+		if 'http' not in word
+		and not word.startswith('@')
+		and not word.startswith('#')]
+	words_withno_stopwords = [word for word in cleaned_words if not word in stopwords_list]
+	feedback.append((words_withno_stopwords, row.sentiment))
+
+test_pos = test[ test['sentiment'] == 'Positive']
+test_pos = test_pos['text']
+test_neg = test[ test['sentiment'] == 'Negative']
+test_neg = test_neg['text']
+
+def get_words_feedback(feedback):
+	all=[]
+	for(words,sentiment) in feedback:
+		all.extend(words)
+	return all
+
+def fetch_wordfeatures(wordlist):
+	wordlist = nltk.FreqDist(wordlist)
+	features = wordlist.keys()
+	return features
+word_features = fetch_wordfeatures(get_words_feedback(feedback))
+
+def extract_features(doc):
+	doc_words =  set (doc)
+	features = {}
+	for word in word_features:
+		features['contains(%s' %word] = (word in doc_words)
+	return features
+
+wordcloud_draw(word_features)
+
+training_set = nltk.classify.apply_features(extract_features, feedback)
+classifier = nltk.NaiveBayesClassifier.train(training_set)

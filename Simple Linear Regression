@@ -1,0 +1,18 @@
+import pandas as pd
+import numy as np
+import sklearn import linear_model
+import sklearn.cross_validation import train_test_split
+
+from sklearn.datasets import load_sample
+sample
+
+def_x=pd.DataFrame(sample.data,columns=sample.feature_names)
+def_y=pd.DataFrame(sample.target)
+def_x.describe()
+reg=linear_model.LinearRegression()
+x_train,x_test,y_train,y_test=train_test_split(def_x,def_y,test_size=0.3,random_state=5)
+x_train.head()
+reg.fit(x_train,y_train)
+reg.coef_
+reg.predict(x_test)
+np.mean((reg.predict(x_test) - y_test)**2)
